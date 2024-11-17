@@ -1,74 +1,235 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons, FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { router, useLocalSearchParams } from 'expo-router';
+import styles from '../../components/HomeStyles';
+import ScoreModal from '../../components/ScoreModal';
+import { useScoreStore } from '../../stores/scoreStore';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+export default function Home() {
+  const [isModalVisible, setModalVisible] = useState(false);
+  const { totalScore, scores, resetScores } = useScoreStore();
+  const params = useLocalSearchParams();
 
-export default function HomeScreen() {
+  const isAllCategoriesScored = () => {
+    const requiredCategories = ['mobility', 'activity', 'sensory', 'humidity', 'friction', 'nutrition', 'perfusion'];
+    return requiredCategories.every(category => scores[category] !== undefined);
+  };
+
+  // Efecto para mostrar el modal cuando se completen todas las categorías
+  useEffect(() => {
+    if (isAllCategoriesScored()) {
+      setModalVisible(true);
+    }
+  }, [scores]);
+
+  useEffect(() => {
+    if (params.showModal === 'true') {
+      setModalVisible(true);
+    }
+  }, [params.showModal]);
+
+  const handleNavigateToOptions = (title: string, category: string) => {
+    router.push({
+      pathname: '/options',
+      params: { title, category }
+    });
+  };
+
+  const handleShowScore = () => {
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
+
+  const handleResetScores = () => {
+    resetScores();
+    setModalVisible(false);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      {/* Encabezado */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>BradenQApp</Text>
+        <Text style={styles.headerSubtitle}>30 días a 14 años</Text>
+        
+        {isAllCategoriesScored() && (
+          <TouchableOpacity 
+            style={styles.showScoreButton} 
+            onPress={handleShowScore}
+          >
+            <Text style={styles.showScoreButtonText}>Ver Puntuación</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* Primera sección */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Intensidad y duración de la presión</Text>
+        
+        <TouchableOpacity 
+          style={[
+            styles.button,
+            scores['mobility'] ? styles.scoredButton : null
+          ]}
+          onPress={() => handleNavigateToOptions('Movilidad', 'mobility')}
+        >
+          <View style={styles.buttonContent}>
+            <MaterialCommunityIcons name="run" size={24} color="#FFFFFF" />
+            <View style={styles.textContainer}>
+              <Text style={styles.buttonText}>
+                Movilidad {scores['mobility'] ? `(${scores['mobility']})` : ''}
+              </Text>
+              <Text style={styles.buttonDescription}>
+                Capacidad para cambiar y controlar la posición del cuerpo
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[
+            styles.button,
+            scores['activity'] ? styles.scoredButton : null
+          ]}
+          onPress={() => handleNavigateToOptions('Actividad', 'activity')}
+        >
+          <View style={styles.buttonContent}>
+            <FontAwesome5 name="walking" size={24} color="#FFFFFF" />
+            <View style={styles.textContainer}>
+              <Text style={styles.buttonText}>
+                Actividad {scores['activity'] ? `(${scores['activity']})` : ''}
+              </Text>
+              <Text style={styles.buttonDescription}>
+                Nivel de actividad física y frecuencia de movimientos
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[
+            styles.button,
+            scores['sensory'] ? styles.scoredButton : null
+          ]}
+          onPress={() => handleNavigateToOptions('Percepción sensorial', 'sensory')}
+        >
+          <View style={styles.buttonContent}>
+            <MaterialCommunityIcons name="brain" size={24} color="#FFFFFF" />
+            <View style={styles.textContainer}>
+              <Text style={styles.buttonText}>
+                Percepción sensorial {scores['sensory'] ? `(${scores['sensory']})` : ''}
+              </Text>
+              <Text style={styles.buttonDescription}>
+                Capacidad para reaccionar ante una presión relacionada con el malestar
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      {/* Segunda sección */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Tolerancia de la piel y la estructura de soporte</Text>
+        
+        <TouchableOpacity 
+          style={[
+            styles.button,
+            scores['humidity'] ? styles.scoredButton : null
+          ]}
+          onPress={() => handleNavigateToOptions('Humedad', 'humidity')}
+        >
+          <View style={styles.buttonContent}>
+            <Ionicons name="water" size={24} color="#FFFFFF" />
+            <View style={styles.textContainer}>
+              <Text style={styles.buttonText}>
+                Humedad {scores['humidity'] ? `(${scores['humidity']})` : ''}
+              </Text>
+              <Text style={styles.buttonDescription}>
+                Nivel de exposición de la piel a la humedad
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[
+            styles.button,
+            scores['friction'] ? styles.scoredButton : null
+          ]}
+          onPress={() => handleNavigateToOptions('Fricción y cizallamiento', 'friction')}
+        >
+          <View style={styles.buttonContent}>
+            <MaterialCommunityIcons name="refresh" size={24} color="#FFFFFF" />
+            <View style={styles.textContainer}>
+              <Text style={styles.buttonText}>
+                Fricción y cizallamiento {scores['friction'] ? `(${scores['friction']})` : ''}
+              </Text>
+              <Text style={styles.buttonDescription}>
+                Roce entre la piel y las superficies de apoyo
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[
+            styles.button,
+            scores['nutrition'] ? styles.scoredButton : null
+          ]}
+          onPress={() => handleNavigateToOptions('Nutrición', 'nutrition')}
+        >
+          <View style={styles.buttonContent}>
+            <MaterialCommunityIcons name="food-apple" size={24} color="#FFFFFF" />
+            <View style={styles.textContainer}>
+              <Text style={styles.buttonText}>
+                Nutrición {scores['nutrition'] ? `(${scores['nutrition']})` : ''}
+              </Text>
+              <Text style={styles.buttonDescription}>
+                Patrón habitual de consumo alimentario
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[
+            styles.button,
+            scores['perfusion'] ? styles.scoredButton : null
+          ]}
+          onPress={() => handleNavigateToOptions('Perfusión tisular y oxigenación', 'perfusion')}
+        >
+          <View style={styles.buttonContent}>
+            <FontAwesome5 name="heart" size={24} color="#FFFFFF" />
+            <View style={styles.textContainer}>
+              <Text style={styles.buttonText}>
+                Perfusión tisular y oxigenación {scores['perfusion'] ? `(${scores['perfusion']})` : ''}
+              </Text>
+              <Text style={styles.buttonDescription}>
+                Estado del flujo sanguíneo y oxigenación de los tejidos
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        {isAllCategoriesScored() && (
+          <TouchableOpacity 
+            style={styles.resetButton} 
+            onPress={handleResetScores}
+          >
+            <Text style={styles.resetButtonText}>Reiniciar Evaluación</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      <ScoreModal 
+        isVisible={isModalVisible}
+        onClose={handleCloseModal}
+        score={totalScore}
+      />
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
