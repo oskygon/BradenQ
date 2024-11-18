@@ -61,17 +61,13 @@ const OptionsScreen = ({ title,  category }: { title: string, category: string }
 
   const handleSelect = (value: number) => {
     const isComplete = setScore(category, value);
-    router.back();
-    
-    // Si todas las categorías están completas, esperamos a que la navegación termine
-    // antes de mostrar el modal
     if (isComplete) {
-      setTimeout(() => {
-        router.push({
-          pathname: '/(tabs)',
-          params: { showModal: 'true' }
-        });
-      }, 100);
+      router.replace({
+        pathname: '/(tabs)',
+        params: { showModal: 'true', timestamp: Date.now() }
+      });
+    } else {
+      router.back();
     }
   };
 

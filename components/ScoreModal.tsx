@@ -1,4 +1,3 @@
-// components/ScoreModal.tsx
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
@@ -8,54 +7,59 @@ interface ScoreModalProps {
   score: number;
 }
 
-const getScoreText = (score: number) => {
-  if (score >= 23) return 'Sin riesgo';
-  if (score >= 16) return 'Riesgo bajo';
-  if (score >= 9) return 'Riesgo moderado';
-  return 'Riesgo alto';
-};
-
-const getScoreColor = (score: number) => {
-  if (score >= 23) return '#4CAF50';
-  if (score >= 16) return '#FFC107';
-  if (score >= 9) return '#FF9800';
-  return '#F44336';
+const getRiskLevel = (score: number) => {
+  if (score >= 23) return { text: 'Sin riesgo', color: '#4CAF50' };
+  if (score >= 21) return { text: 'Riesgo leve', color: '#FFC107' };
+  if (score >= 16) return { text: 'Riesgo moderado', color: '#FF9800' };
+  return { text: 'Riesgo alto', color: '#F44336' };
 };
 
 const ScoreModal = ({ isVisible, onClose, score }: ScoreModalProps) => {
-  const scoreText = getScoreText(score);
-  const scoreColor = getScoreColor(score);
+  const risk = getRiskLevel(score);
+
+  const handleSendData = () => {
+    // Aquí iría la lógica para enviar los datos
+    console.log('Enviando datos...');
+  };
 
   return (
     <Modal
-      animationType="fade"
+      animationType="slide"
       transparent={true}
       visible={isVisible}
       onRequestClose={onClose}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Puntuación Total</Text>
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <Text style={styles.modalTitle}>Evaluación Completa</Text>
           
-          <View style={[styles.scoreContainer, { backgroundColor: scoreColor }]}>
-            <Text style={styles.scoreText}>{score}</Text>
-            <Text style={styles.scoreDescription}>{scoreText}</Text>
+          <View style={styles.scoreSection}>
+            <Text style={styles.scoreLabel}>Puntuación Total</Text>
+            <Text style={styles.scoreValue}>{score}</Text>
           </View>
 
-          <Text style={styles.interpretationTitle}>Interpretación:</Text>
-          <View style={styles.interpretationContainer}>
-            <Text style={styles.interpretationText}>• 23-28: Sin riesgo</Text>
-            <Text style={styles.interpretationText}>• 16-22: Riesgo bajo</Text>
-            <Text style={styles.interpretationText}>• 9-15: Riesgo moderado</Text>
-            <Text style={styles.interpretationText}>• ≤ 8: Riesgo alto</Text>
+          <View style={styles.riskSection}>
+            <Text style={styles.riskLabel}>Nivel de Riesgo</Text>
+            <Text style={[styles.riskValue, { color: risk.color }]}>{risk.text}</Text>
           </View>
 
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={onClose}
-          >
-            <Text style={styles.closeButtonText}>Cerrar</Text>
-          </TouchableOpacity>
+          <Text style={styles.question}>¿Desea enviar estos datos?</Text>
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[styles.button, styles.sendButton]}
+              onPress={handleSendData}
+            >
+              <Text style={styles.buttonText}>Enviar Datos</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.button, styles.closeButton]}
+              onPress={onClose}
+            >
+              <Text style={styles.buttonText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -63,67 +67,88 @@ const ScoreModal = ({ isVisible, onClose, score }: ScoreModalProps) => {
 };
 
 const styles = StyleSheet.create({
-  modalOverlay: {
+  centeredView: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  modalContent: {
+  modalView: {
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 20,
-    width: '80%',
+    padding: 24,
+    width: '90%',
+    maxWidth: 400,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   modalTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
     color: '#4C4B16',
+    marginBottom: 20,
   },
-  scoreContainer: {
-    padding: 20,
-    borderRadius: 15,
+  scoreSection: {
     alignItems: 'center',
     marginBottom: 20,
-    width: '100%',
   },
-  scoreText: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: 'white',
+  scoreLabel: {
+    fontSize: 16,
+    color: '#666666',
+    marginBottom: 8,
   },
-  scoreDescription: {
-    fontSize: 20,
-    color: 'white',
+  scoreValue: {
+    fontSize: 36,
     fontWeight: 'bold',
-  },
-  interpretationTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
     color: '#4C4B16',
   },
-  interpretationContainer: {
-    alignSelf: 'stretch',
-    marginBottom: 20,
+  riskSection: {
+    alignItems: 'center',
+    marginBottom: 24,
   },
-  interpretationText: {
+  riskLabel: {
     fontSize: 16,
-    marginBottom: 5,
-    color: '#666',
+    color: '#666666',
+    marginBottom: 8,
+  },
+  riskValue: {
+    fontSize: 28,
+    fontWeight: 'bold',
+  },
+  question: {
+    fontSize: 18,
+    color: '#4C4B16',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  button: {
+    borderRadius: 12,
+    padding: 12,
+    elevation: 2,
+    minWidth: 120,
+  },
+  sendButton: {
+    backgroundColor: '#4C4B16',
   },
   closeButton: {
-    backgroundColor: '#FF7849',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 10,
+    backgroundColor: '#F44336',
   },
-  closeButtonText: {
+  buttonText: {
     color: 'white',
-    fontSize: 16,
     fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 16,
   },
 });
 

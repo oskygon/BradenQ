@@ -4,6 +4,7 @@ import { MaterialCommunityIcons, FontAwesome5, Ionicons } from '@expo/vector-ico
 import { router, useLocalSearchParams } from 'expo-router';
 import styles from '../../components/HomeStyles';
 import ScoreModal from '../../components/ScoreModal';
+import ScorePanel from '../../components/ScorePanel';
 import { useScoreStore } from '../../stores/scoreStore';
 
 export default function Home() {
@@ -11,23 +12,11 @@ export default function Home() {
   const { totalScore, scores, resetScores } = useScoreStore();
   const params = useLocalSearchParams();
 
-  const isAllCategoriesScored = () => {
-    const requiredCategories = ['mobility', 'activity', 'sensory', 'humidity', 'friction', 'nutrition', 'perfusion'];
-    return requiredCategories.every(category => scores[category] !== undefined);
-  };
-
-  // Efecto para mostrar el modal cuando se completen todas las categorías
   useEffect(() => {
-    if (isAllCategoriesScored()) {
+    if (params.showModal === 'true' && params.timestamp) {
       setModalVisible(true);
     }
-  }, [scores]);
-
-  useEffect(() => {
-    if (params.showModal === 'true') {
-      setModalVisible(true);
-    }
-  }, [params.showModal]);
+  }, [params.showModal, params.timestamp]);
 
   const handleNavigateToOptions = (title: string, category: string) => {
     router.push({
@@ -44,29 +33,47 @@ export default function Home() {
     setModalVisible(false);
   };
 
-  const handleResetScores = () => {
+  const handleReset = () => {
     resetScores();
     setModalVisible(false);
   };
 
+  const isAllCategoriesScored = () => {
+    const requiredCategories = ['mobility', 'activity', 'sensory', 'humidity', 'friction', 'nutrition', 'perfusion'];
+    return requiredCategories.every(category => scores[category] !== undefined);
+  };
+
+  const hasAnyScore = () => {
+    return Object.keys(scores).length > 0;
+  };
+
+  const getTotalCategories = () => 7;
+  const getCompletedCategories = () => Object.keys(scores).length;
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      {/* Encabezado */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>BradenQApp</Text>
         <Text style={styles.headerSubtitle}>30 días a 14 años</Text>
         
-        {isAllCategoriesScored() && (
+        {hasAnyScore() && !isAllCategoriesScored() && (
           <TouchableOpacity 
-            style={styles.showScoreButton} 
-            onPress={handleShowScore}
+            style={styles.resetButtonHeader} 
+            onPress={handleReset}
           >
-            <Text style={styles.showScoreButtonText}>Ver Puntuación</Text>
+            <Text style={styles.resetButtonHeaderText}>Reiniciar Evaluación</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {/* Primera sección */}
+      {hasAnyScore() && (
+        <ScorePanel
+          score={totalScore}
+          totalOptions={getTotalCategories()}
+          completedOptions={getCompletedCategories()}
+        />
+      )}
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Intensidad y duración de la presión</Text>
         
@@ -78,12 +85,18 @@ export default function Home() {
           onPress={() => handleNavigateToOptions('Movilidad', 'mobility')}
         >
           <View style={styles.buttonContent}>
-            <MaterialCommunityIcons name="run" size={24} color="#FFFFFF" />
+            <MaterialCommunityIcons name="run-fast" size={24} color={scores['mobility'] ? "#FFFFFF" : "#FFD700"} />
             <View style={styles.textContainer}>
-              <Text style={styles.buttonText}>
+              <Text style={[
+                styles.buttonText,
+                scores['mobility'] ? styles.scoredButtonText : null
+              ]}>
                 Movilidad {scores['mobility'] ? `(${scores['mobility']})` : ''}
               </Text>
-              <Text style={styles.buttonDescription}>
+              <Text style={[
+                styles.buttonDescription,
+                scores['mobility'] ? styles.scoredButtonDescription : null
+              ]}>
                 Capacidad para cambiar y controlar la posición del cuerpo
               </Text>
             </View>
@@ -98,12 +111,18 @@ export default function Home() {
           onPress={() => handleNavigateToOptions('Actividad', 'activity')}
         >
           <View style={styles.buttonContent}>
-            <FontAwesome5 name="walking" size={24} color="#FFFFFF" />
+            <MaterialCommunityIcons name="human-handsup" size={24} color={scores['activity'] ? "#FFFFFF" : "#87CEEB"} />
             <View style={styles.textContainer}>
-              <Text style={styles.buttonText}>
+              <Text style={[
+                styles.buttonText,
+                scores['activity'] ? styles.scoredButtonText : null
+              ]}>
                 Actividad {scores['activity'] ? `(${scores['activity']})` : ''}
               </Text>
-              <Text style={styles.buttonDescription}>
+              <Text style={[
+                styles.buttonDescription,
+                scores['activity'] ? styles.scoredButtonDescription : null
+              ]}>
                 Nivel de actividad física y frecuencia de movimientos
               </Text>
             </View>
@@ -118,12 +137,18 @@ export default function Home() {
           onPress={() => handleNavigateToOptions('Percepción sensorial', 'sensory')}
         >
           <View style={styles.buttonContent}>
-            <MaterialCommunityIcons name="brain" size={24} color="#FFFFFF" />
+            <MaterialCommunityIcons name="brain" size={24} color={scores['sensory'] ? "#FFFFFF" : "#FFA500"} />
             <View style={styles.textContainer}>
-              <Text style={styles.buttonText}>
+              <Text style={[
+                styles.buttonText,
+                scores['sensory'] ? styles.scoredButtonText : null
+              ]}>
                 Percepción sensorial {scores['sensory'] ? `(${scores['sensory']})` : ''}
               </Text>
-              <Text style={styles.buttonDescription}>
+              <Text style={[
+                styles.buttonDescription,
+                scores['sensory'] ? styles.scoredButtonDescription : null
+              ]}>
                 Capacidad para reaccionar ante una presión relacionada con el malestar
               </Text>
             </View>
@@ -131,7 +156,6 @@ export default function Home() {
         </TouchableOpacity>
       </View>
 
-      {/* Segunda sección */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Tolerancia de la piel y la estructura de soporte</Text>
         
@@ -143,12 +167,18 @@ export default function Home() {
           onPress={() => handleNavigateToOptions('Humedad', 'humidity')}
         >
           <View style={styles.buttonContent}>
-            <Ionicons name="water" size={24} color="#FFFFFF" />
+            <Ionicons name="water" size={24} color={scores['humidity'] ? "#FFFFFF" : "#00CED1"} />
             <View style={styles.textContainer}>
-              <Text style={styles.buttonText}>
+              <Text style={[
+                styles.buttonText,
+                scores['humidity'] ? styles.scoredButtonText : null
+              ]}>
                 Humedad {scores['humidity'] ? `(${scores['humidity']})` : ''}
               </Text>
-              <Text style={styles.buttonDescription}>
+              <Text style={[
+                styles.buttonDescription,
+                scores['humidity'] ? styles.scoredButtonDescription : null
+              ]}>
                 Nivel de exposición de la piel a la humedad
               </Text>
             </View>
@@ -163,12 +193,18 @@ export default function Home() {
           onPress={() => handleNavigateToOptions('Fricción y cizallamiento', 'friction')}
         >
           <View style={styles.buttonContent}>
-            <MaterialCommunityIcons name="refresh" size={24} color="#FFFFFF" />
+            <MaterialCommunityIcons name="sync" size={24} color={scores['friction'] ? "#FFFFFF" : "#FF69B4"} />
             <View style={styles.textContainer}>
-              <Text style={styles.buttonText}>
+              <Text style={[
+                styles.buttonText,
+                scores['friction'] ? styles.scoredButtonText : null
+              ]}>
                 Fricción y cizallamiento {scores['friction'] ? `(${scores['friction']})` : ''}
               </Text>
-              <Text style={styles.buttonDescription}>
+              <Text style={[
+                styles.buttonDescription,
+                scores['friction'] ? styles.scoredButtonDescription : null
+              ]}>
                 Roce entre la piel y las superficies de apoyo
               </Text>
             </View>
@@ -183,12 +219,18 @@ export default function Home() {
           onPress={() => handleNavigateToOptions('Nutrición', 'nutrition')}
         >
           <View style={styles.buttonContent}>
-            <MaterialCommunityIcons name="food-apple" size={24} color="#FFFFFF" />
+            <MaterialCommunityIcons name="fruit-watermelon" size={24} color={scores['nutrition'] ? "#FFFFFF" : "#32CD32"} />
             <View style={styles.textContainer}>
-              <Text style={styles.buttonText}>
+              <Text style={[
+                styles.buttonText,
+                scores['nutrition'] ? styles.scoredButtonText : null
+              ]}>
                 Nutrición {scores['nutrition'] ? `(${scores['nutrition']})` : ''}
               </Text>
-              <Text style={styles.buttonDescription}>
+              <Text style={[
+                styles.buttonDescription,
+                scores['nutrition'] ? styles.scoredButtonDescription : null
+              ]}>
                 Patrón habitual de consumo alimentario
               </Text>
             </View>
@@ -203,12 +245,18 @@ export default function Home() {
           onPress={() => handleNavigateToOptions('Perfusión tisular y oxigenación', 'perfusion')}
         >
           <View style={styles.buttonContent}>
-            <FontAwesome5 name="heart" size={24} color="#FFFFFF" />
+            <MaterialCommunityIcons name="heart-pulse" size={24} color={scores['perfusion'] ? "#FFFFFF" : "#FF1493"} />
             <View style={styles.textContainer}>
-              <Text style={styles.buttonText}>
+              <Text style={[
+                styles.buttonText,
+                scores['perfusion'] ? styles.scoredButtonText : null
+              ]}>
                 Perfusión tisular y oxigenación {scores['perfusion'] ? `(${scores['perfusion']})` : ''}
               </Text>
-              <Text style={styles.buttonDescription}>
+              <Text style={[
+                styles.buttonDescription,
+                scores['perfusion'] ? styles.scoredButtonDescription : null
+              ]}>
                 Estado del flujo sanguíneo y oxigenación de los tejidos
               </Text>
             </View>
@@ -216,12 +264,21 @@ export default function Home() {
         </TouchableOpacity>
 
         {isAllCategoriesScored() && (
-          <TouchableOpacity 
-            style={styles.resetButton} 
-            onPress={handleResetScores}
-          >
-            <Text style={styles.resetButtonText}>Reiniciar Evaluación</Text>
-          </TouchableOpacity>
+          <View style={styles.bottomButtonsContainer}>
+            <TouchableOpacity 
+              style={styles.showScoreButton} 
+              onPress={handleShowScore}
+            >
+              <Text style={styles.showScoreButtonText}>Ver Puntuación</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.resetButton} 
+              onPress={handleReset}
+            >
+              <Text style={styles.resetButtonText}>Reiniciar Evaluación</Text>
+            </TouchableOpacity>
+          </View>
         )}
       </View>
 

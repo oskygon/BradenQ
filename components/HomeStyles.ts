@@ -10,6 +10,7 @@ export default StyleSheet.create({
     padding: 20,
     paddingTop: 40,
     marginTop: 20,
+    borderRadius: 30,
     backgroundColor: '#FF7849',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
@@ -34,7 +35,7 @@ export default StyleSheet.create({
     textAlign: 'center',
     marginTop: 4,
   },
-  showScoreButton: {
+  resetButtonHeader: {
     backgroundColor: '#FFFFFF',
     paddingVertical: 8,
     paddingHorizontal: 16,
@@ -50,8 +51,8 @@ export default StyleSheet.create({
     shadowRadius: 1.41,
     elevation: 2,
   },
-  showScoreButtonText: {
-    color: '#FF7849',
+  resetButtonHeaderText: {
+    color: '#4C4B16',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -65,7 +66,7 @@ export default StyleSheet.create({
     marginBottom: 16,
   },
   button: {
-    backgroundColor: '#FF7849',
+    backgroundColor: '#FFFFFF',
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -77,9 +78,12 @@ export default StyleSheet.create({
     shadowOpacity: 0.23,
     shadowRadius: 2.62,
     elevation: 4,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
   scoredButton: {
-    backgroundColor: '#4C4B16',
+    backgroundColor: '#FF7849',
+    borderColor: '#FF7849',
   },
   buttonContent: {
     flexDirection: 'row',
@@ -92,19 +96,47 @@ export default StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#4C4B16',
   },
   buttonDescription: {
     fontSize: 14,
-    color: '#FFFFFF',
-    opacity: 0.8,
+    color: '#666666',
     marginTop: 4,
+  },
+  scoredButtonText: {
+    color: '#FFFFFF',
+  },
+  scoredButtonDescription: {
+    color: '#FFFFFF',
+    opacity: 0.9,
+  },
+  bottomButtonsContainer: {
+    marginTop: 24,
+    gap: 12,
+  },
+  showScoreButton: {
+    backgroundColor: '#4C4B16',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
+  showScoreButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   resetButton: {
     backgroundColor: '#F44336',
     padding: 16,
     borderRadius: 12,
-    marginTop: 24,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
