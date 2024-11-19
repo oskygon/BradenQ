@@ -13,10 +13,10 @@ export default function Home() {
   const params = useLocalSearchParams();
 
   useEffect(() => {
-    if (params.showModal === 'true' && params.timestamp) {
+    if (params.showModal === 'true') {
       setModalVisible(true);
     }
-  }, [params.showModal, params.timestamp]);
+  }, [params.showModal]);
 
   const handleNavigateToOptions = (title: string, category: string) => {
     router.push({
@@ -33,11 +33,6 @@ export default function Home() {
     setModalVisible(false);
   };
 
-  const handleReset = () => {
-    resetScores();
-    setModalVisible(false);
-  };
-
   const isAllCategoriesScored = () => {
     const requiredCategories = ['mobility', 'activity', 'sensory', 'humidity', 'friction', 'nutrition', 'perfusion'];
     return requiredCategories.every(category => scores[category] !== undefined);
@@ -47,7 +42,7 @@ export default function Home() {
     return Object.keys(scores).length > 0;
   };
 
-  const getTotalCategories = () => 7;
+  const getTotalCategories = () => 7; // Total de categorías
   const getCompletedCategories = () => Object.keys(scores).length;
 
   return (
@@ -59,7 +54,7 @@ export default function Home() {
         {hasAnyScore() && !isAllCategoriesScored() && (
           <TouchableOpacity 
             style={styles.resetButtonHeader} 
-            onPress={handleReset}
+            onPress={resetScores}
           >
             <Text style={styles.resetButtonHeaderText}>Reiniciar Evaluación</Text>
           </TouchableOpacity>
@@ -274,7 +269,7 @@ export default function Home() {
 
             <TouchableOpacity 
               style={styles.resetButton} 
-              onPress={handleReset}
+              onPress={resetScores}
             >
               <Text style={styles.resetButtonText}>Reiniciar Evaluación</Text>
             </TouchableOpacity>
